@@ -1,12 +1,20 @@
 SHELL = /bin/bash
 TARGETS = ddclient.conf ddclientipv6.conf
-SOURCES = ddc-common-settings.m4 ddc-ip-settings.m4 ddc-dns-records.m4
+SOURCES = ddc-common-settings.m4 ~pi/.config/ddcreds ddc-ip-settings.m4 ddc-dns-records.m4
 # SOURCES = ddc-common-settings.m4 ddc-ip-settings.m4 ddc-dns-records.m4 ddc-dns-records-for-test.m4
 ETCDIR = /etc
+ETCTARGETS = $(ETCDIR)/ddclient.conf $(ETCDIR)/ddclientipv6.conf
 
-conf: $(TARGETS)
+conf: Makefile $(TARGETS)
 
-reload: reload4 reload6
+reload: $(ETCTARGETS) reload4 reload6
+
+install:
+	@for n in $(TARGETS);\
+	do \
+   echo sudo install -m 644 -t $(ETCDIR) $$n;\
+   sudo install -m 700 -t $(ETCDIR) $$n;\
+	done
 
 reload4:
 	sudo service ddclient force-reload 
@@ -16,16 +24,6 @@ reload6:
 
 clean:
 	rm -f $(TARGETS)
-
-install: $(TARGETS)
-	@for n in $(TARGETS);\
-	do \
-	[ -r $(ETCDIR)/$$n ] && diff -q $$n $(ETCDIR)/$$n > /dev/null;\
-	if [ "$$?" != "0"	];then \
-	   echo sudo install -m 644 -t $(ETCDIR) $$n;\
-	   sudo install -m 755 -t $(ETCDIR) $$n;\
-	fi;\
-	done;\
 
 ddclient.conf: $(SOURCES)
 	m4 -D ip=4 $(SOURCES) > ddclient.conf

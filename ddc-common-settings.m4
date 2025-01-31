@@ -11,7 +11,5 @@ pid=/var/run/ddclient-IP-v-ip.pid
 syslog=1
 ssl=yes
 server=dyndns.strato.com
-login=kardel.eu
-password=stratogisches123KW
 ### End global settings ###
 
